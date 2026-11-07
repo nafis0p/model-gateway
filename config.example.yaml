@@ -1,0 +1,38 @@
+# Copy to config.yaml and edit.
+# API keys are read from environment variables (never commit real keys).
+
+providers:
+  gemini:
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai
+    api_key_env: GEMINI_API_KEY
+  openrouter:
+    base_url: https://openrouter.ai/api/v1
+    api_key_env: OPENROUTER_API_KEY
+  groq:
+    base_url: https://api.groq.com/openai/v1
+    api_key_env: GROQ_API_KEY
+  together:
+    base_url: https://api.together.xyz/v1
+    api_key_env: TOGETHER_API_KEY
+
+# Each alias is what clients send as `model`.
+# `routes` are tried top to bottom. Each provider names the model with its OWN id,
+# so the same underlying model can be listed under different ids.
+# Model ids below are examples: check each provider's current model list.
+models:
+  gemini-flash:
+    routes:
+      - { provider: gemini, model: gemini-2.0-flash }
+      - { provider: openrouter, model: google/gemini-2.0-flash-001 }
+
+  llama-3.3-70b:
+    routes:
+      - { provider: groq, model: llama-3.3-70b-versatile }
+      - { provider: openrouter, model: meta-llama/llama-3.3-70b-instruct }
+      - { provider: together, model: meta-llama/Llama-3.3-70B-Instruct-Turbo }
+
+settings:
+  timeout_seconds: 60
+  cooldown_seconds: 30   # used on 429 when no Retry-After header is sent
+  # Statuses (besides any 5xx) that trigger fallback to the next provider:
+  fallback_statuses: [401, 402, 403, 404, 408, 409, 425, 429]
